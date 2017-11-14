@@ -10,7 +10,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-#include<vector>
+#include <vector>
+#include "../struct/message.h"
 using namespace std;
 const int MAX_LINE = 2048;
 const int PORT_1 = 20003;
@@ -19,19 +20,6 @@ const int BACKLOG = 10;
 const int LISTENQ = 6666;
 const int MAX_CONNECT = 20;
 
-typedef struct clientMessage{
-    int operation;
-    char clientName[1024] ;
-    char stockName[1024] ;
-    int price;
-     int num;
-} cmsgType;
-
-typedef struct serverMessage{
-    int operation;
-    char stockName[1024] ;
-    int  num;
-} smsgType;
 
 /*处理接收客户端消息函数*/
 void *recv_message(void *fd)

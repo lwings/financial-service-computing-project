@@ -12,6 +12,8 @@
 #include <pthread.h>
 #include <time.h>
 #include <map>
+#include "../struct/message.h"
+#include "../struct/stock.h"
 using namespace std;
 const int MAX_LINE = 2048;
 const int PORT =20003;
@@ -19,27 +21,7 @@ const int BACKLOG = 10;
 const int LISTENQ = 6666;
 const int MAX_CONNECT = 20;
 
-typedef struct stock{
-    int num;
-    int price;
-} stockType;
-
 map<string ,stockType> stock_map;
-
-typedef struct clientMessage{
-    int operation;
-    char clientName[1024] ;
-    char stockName[1024] ;
-    int price;
-    int num;
-} cmsgType;
-
-typedef struct serverMessage{
-    int operation;
-    char stockName[1024] ;
-    int  num;
-} smsgType;
-
 
 // 同步锁
 pthread_mutex_t stockMutex=PTHREAD_MUTEX_INITIALIZER;
