@@ -160,7 +160,7 @@ int main(int argc , char **argv)
         }//if
 
         pthread_mutex_lock(&stockMutex);
-        printf("\n the price is %d now \n",price);
+        printf("\n the price is %d now \n",csmgtest_1.price);
         csmgtest_1.price=price;
         pthread_mutex_unlock (&stockMutex);
 
