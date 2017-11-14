@@ -56,6 +56,7 @@ void *RandomStock(void *fd)
 /*处理接收服务器消息函数*/
 void *recv_message(void *fd)
 {
+    printf("fuck!!!\n\n\n");
     mktDataType cmsg;
     int sockfd = *(int *)fd;
     while(1)
@@ -147,32 +148,34 @@ int main(int argc , char **argv)
         perror("RandomStock_pthread create error.\n");
         exit(1);
     }
-    mktDataType csmgtest_1;
 
-    while(fgets( csmgtest_1.stockName , MAX_LINE , stdin) != NULL)
-    {
-        strcpy(csmgtest_1.clientName , "Client_3 ");
-        if(strcmp(csmgtest_1.clientName, "exit\n") == 0)
-        {
-            printf("byebye.\n");
-            memset(csmgtest_1.stockName , 0 , MAX_LINE);
-            strcpy(csmgtest_1.stockName, "byebye.");
-            send(sockfd , &csmgtest_1 , sizeof(mktDataType), 0);
-            close(sockfd);
-            exit(0);
-        }//if
-
-        pthread_mutex_lock(&stockMutex);
-        printf("\n the price is %d now \n",price);
-        csmgtest_1.price=price;
-        pthread_mutex_unlock (&stockMutex);
-
-        if(send(sockfd ,&csmgtest_1 , sizeof(mktDataType) , 0) == -1)
-        {
-            perror("send error.\n");
-            exit(1);
-        }//
-
-    }//while
+    sleep(360000);
+//    mktDataType csmgtest_1;
+//
+//    while(fgets( csmgtest_1.stockName , MAX_LINE , stdin) != NULL)
+//    {
+//        strcpy(csmgtest_1.clientName , "Client_3");
+//        if(strcmp(csmgtest_1.clientName, "exit\n") == 0)
+//        {
+//            printf("byebye.\n");
+//            memset(csmgtest_1.stockName , 0 , MAX_LINE);
+//            strcpy(csmgtest_1.stockName, "byebye.");
+//            send(sockfd , &csmgtest_1 , sizeof(mktDataType), 0);
+//            close(sockfd);
+//            exit(0);
+//        }//if
+//
+//        pthread_mutex_lock(&stockMutex);
+//        printf("\n the price is %d now \n",csmgtest_1.price);
+//        csmgtest_1.price=price;
+//        pthread_mutex_unlock (&stockMutex);
+//
+//        if(send(sockfd ,&csmgtest_1 , sizeof(mktDataType) , 0) == -1)
+//        {
+//            perror("send error.\n");
+//            exit(1);
+//        }//
+//
+//    }//while
 }
 

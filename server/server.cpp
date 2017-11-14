@@ -37,7 +37,6 @@ void *recv_message(void *fd)
             exit(1);
         }//if
 
-
         printf("\n1234\n");
         printf("\n %s stock_name %s price  %d  num%d", cmsgtest1.clientName, cmsgtest1.stockName,cmsgtest1.price,cmsgtest1.num);
     }//while

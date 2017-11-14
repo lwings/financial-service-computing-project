@@ -1,3 +1,6 @@
+//
+// Created by ChiuPhonic on 2017/11/14.
+//
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,22 +32,23 @@ pthread_mutex_t stockMutex=PTHREAD_MUTEX_INITIALIZER;
 int price=0;
 void *RandomStock(void *fd)
 {
-stock_map["aaa"].num=500;
-stock_map["bbb"].num=500;
-stock_map["ccc"].num=500;
-stock_map["ddd"].num=500;
-    stock_map["aaa"].price=50;
-    stock_map["bbb"].price=50;
-    stock_map["ccc"].price=50;
-    stock_map["ddd"].price=50;
+    stock_map["IBM.US"].num=2000;
+    stock_map["MS.US"].num=1500;
+    stock_map["PTR.US"].num=1200;
+    stock_map["BABA.US"].num=3500;
+
+    stock_map["IBM.US"].price=148900;
+    stock_map["MS.US"].price=48370;
+    stock_map["PTR.US"].price=68920;
+    stock_map["BABA.US"].price=182570;
     srand(time(NULL));
     while(1)
     {
         pthread_mutex_lock(&stockMutex);
-        stock_map["aaa"].price=rand()%100;
-        stock_map["bbb"].price=rand()%100;
-        stock_map["ccc"].price=rand()%100;
-        stock_map["ddd"].price=rand()%100;
+        stock_map["IBM.US"].price+=(rand()%500-250)*10;
+        stock_map["MS.US"].price+=(rand()%200-100)*10;
+        stock_map["PTR.US"].price+=(rand()%100-50)*10;
+        stock_map["BABA.US"].price+=(rand()%1000-500)*10;
         pthread_mutex_unlock (&stockMutex);
         sleep(1);
     }
@@ -66,23 +70,17 @@ void *recv_message(void *fd)
             exit(1);
         }//if
         pthread_mutex_lock(&stockMutex);
-       if (smsrecv.operation==0)
-       {
-        strcpy(cmsg.clientName,"client1");
+
+        strcpy(cmsg.clientName,"NYSE");
         strcpy(cmsg.stockName,smsrecv.stockName);
-        cmsg.price=stock_map[cmsg.stockName].price;
-         cmsg.num=stock_map[cmsg.stockName].num;
-         cmsg.operation=0;
-       }
-       if(smsrecv.operation==1)
-       {
-        strcpy(cmsg.clientName,"client1");
-        strcpy(cmsg.stockName,smsrecv.stockName);
-        stock_map[cmsg.stockName].num= stock_map[cmsg.stockName].num-smsrecv.num;
-        cmsg.price=stock_map[cmsg.stockName].price;
-         cmsg.num=stock_map[cmsg.stockName].num;
-         cmsg.operation=1;
-       }
+        cmsg.operation = smsrecv.operation;
+        cmsg.price[0] = stock_map[cmsg.stockName].price;
+        cmsg.num[0] = stock_map[cmsg.stockName].num;
+        for (int i = 1; i < 20; ++i) {
+            cmsg.price[i] = cmsg.price[i-1] + (rand()%20)*10;
+            cmsg.num[i] = cmsg.num[i-1] + (rand()%6-3)*100;
+        }
+
         pthread_mutex_unlock (&stockMutex);
         if((n = send(sockfd , &cmsg ,sizeof(mktDataType) , 0)) == -1)
         {
@@ -144,31 +142,34 @@ int main(int argc , char **argv)
         perror("RandomStock_pthread create error.\n");
         exit(1);
     }
-    mktDataType csmgtest_1;
 
-    while(fgets( csmgtest_1.stockName , MAX_LINE , stdin) != NULL)
-    {
-        strcpy(csmgtest_1.clientName , "Client_1 ");
-        if(strcmp(csmgtest_1.clientName, "exit\n") == 0)
-        {
-            printf("byebye.\n");
-            memset(csmgtest_1.stockName , 0 , MAX_LINE);
-            strcpy(csmgtest_1.stockName, "byebye.");
-            send(sockfd , &csmgtest_1 , sizeof(mktDataType), 0);
-            close(sockfd);
-            exit(0);
-        }//if
-
-        pthread_mutex_lock(&stockMutex);
-        printf("\n the price is %d now \n",price);
-        csmgtest_1.price=price;
-        pthread_mutex_unlock (&stockMutex);
-
-        if(send(sockfd ,&csmgtest_1 , sizeof(mktDataType) , 0) == -1)
-        {
-            perror("send error.\n");
-            exit(1);
-        }//
-
-    }//while
+    sleep(360000);
+//    mktDataType csmgtest_1;
+//
+//    while(fgets( csmgtest_1.stockName , MAX_LINE , stdin) != NULL)
+//    {
+//        strcpy(csmgtest_1.clientName , "client1");
+//        if(strcmp(csmgtest_1.clientName, "exit\n") == 0)
+//        {
+//            printf("byebye.\n");
+//            memset(csmgtest_1.stockName , 0 , MAX_LINE);
+//            strcpy(csmgtest_1.stockName, "byebye.");
+//            send(sockfd , &csmgtest_1 , sizeof(mktDataType), 0);
+//            close(sockfd);
+//            exit(0);
+//        }//if
+//
+//        pthread_mutex_lock(&stockMutex);
+//        printf("\n the price is %d now \n",csmgtest_1.price);
+//        csmgtest_1.price=price;
+//        pthread_mutex_unlock (&stockMutex);
+//
+//        if(send(sockfd ,&csmgtest_1 , sizeof(mktDataType) , 0) == -1)
+//        {
+//            perror("send error.\n");
+//            exit(1);
+//        }//
+//
+//    }//while
 }
+
