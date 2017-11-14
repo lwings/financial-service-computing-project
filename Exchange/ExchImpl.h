@@ -25,15 +25,7 @@ const int MAX_LINE = 2048;
 
 class ExchImpl {
 public:
-    ExchImpl( const string &_CN, const string &_IP, const int _PORT, const int _LISTENQ=6666 ) {
-        ClientName = _CN;
-        IP = _IP;
-        PORT = _PORT;
-        LISTENQ = _LISTENQ;
-        pthread_attr_init(&threadAttr);
-        create_socket();
-        tcp_connect();
-    }
+    ExchImpl() {}
     ~ExchImpl() {}
 
 private:
@@ -42,7 +34,7 @@ private:
     static int PORT;
     static int LISTENQ;
 
-    static pthread_mutex_t StockMutex = PTHREAD_MUTEX_INITIALIZER;
+    static pthread_mutex_t StockMutex;
     pthread_attr_t threadAttr;
     int sockfd;
     pthread_t recv_tid , send_tid , randstock_tid;
@@ -56,6 +48,18 @@ private:
 
 public:
     static map<string ,stockType> stock_map;
+    void initialize( const string &_CN, const string &_IP, const int _PORT, const int _LISTENQ=6666 )
+    {
+            ClientName = _CN;
+            IP = _IP;
+            PORT = _PORT;
+            LISTENQ = _LISTENQ;
+            StockMutex = PTHREAD_MUTEX_INITIALIZER;
+
+            pthread_attr_init(&threadAttr);
+            create_socket();
+            tcp_connect();
+    }
     void run();
 };
 

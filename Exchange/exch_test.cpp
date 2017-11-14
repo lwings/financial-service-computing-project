@@ -11,6 +11,7 @@ int main()
     const int port = 20003;
     const int listen_port = 6666;
 
-    ExchImpl exch = ExchImpl(client_name, ip, port, listen_port);
+    ExchImpl exch = ExchImpl();
+    exch.initialize(client_name, ip, port, listen_port);
     exch.run();
 }
