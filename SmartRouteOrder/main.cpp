@@ -35,28 +35,30 @@ typedef struct price_level {
     int qty;
 } pxlv;
 typedef std::map<string, pxlv*> plm;
-typedef std::map<string, plm> xpm;
+typedef std::map<string, plm*> xpm;
 
-std::string AllExch[EXCHANGE_COUNT] = {
-        "NYSE",
-        "NASDAQ",
-        "IEX"
-};
-std::string AllTickers[INSTRUMENT_COUNT] = {
-        "IBM.US",
-        "MS.US",
-        "PTR.US",
-        "BABA.US"
-};
+std::string AllExch[EXCHANGE_COUNT];
+std::string AllTickers[INSTRUMENT_COUNT];
 
-xpm xp_map;
+xpm *xp_map = new xpm();
 
 void init_xp_map()
 {
+    AllExch[0] = "NYSE";
+    AllExch[1] = "NASDAQ";
+    AllExch[2] = "IEX";
+
+    AllTickers[0] = "IBM.US";
+    AllTickers[1] = "MS.US";
+    AllTickers[2] = "PTR.US";
+    AllTickers[3] = "BABA.US";
+
     for (int i = 0; i < EXCHANGE_COUNT; ++i) {
-        xp_map[AllExch[i]] = new plm();
+        std::string exch = AllExch[i];
+        (*xp_map)[exch] = new plm();
         for (int j = 0; j < INSTRUMENT_COUNT; ++j) {
-            xp_map[AllExch[i]][AllTickers[j]] = new pxlv(MAX_PRICELEVEL);
+            std::string ticker = AllTickers[j];
+            (*(*xp_map)[exch])[ticker] = new pxlv[MAX_PRICELEVEL];
         }
     }
 }
@@ -77,8 +79,10 @@ void *recv_message(void *fd)
         printf(" %s@%s \n BestBid: %d => %d \n BestOffer: %d => %d\n", cmsgtest1.stockName, cmsgtest1.clientName,
                cmsgtest1.price[9], cmsgtest1.num[9], cmsgtest1.price[10], cmsgtest1.num[10]);
         for (int i = 0; i < MAX_PRICELEVEL; ++i) {
-            xp_map[cmsgtest1.clientName][cmsgtest1.stockName][i].price = cmsgtest1.price[i];
-            xp_map[cmsgtest1.clientName][cmsgtest1.stockName][i].num = cmsgtest1.num[i];
+            std::string exch = cmsgtest1.clientName;
+            std::string ticker = cmsgtest1.stockName;
+            (*(*xp_map)[exch])[ticker][i].price = cmsgtest1.price[i];
+            (*(*xp_map)[exch])[ticker][i].qty = cmsgtest1.num[i];
         }
     }//while
 }
@@ -229,7 +233,9 @@ int main() {
     }//if
 
     std::string command;
+    std::cout << "before init_xp_map" << std::endl;
     init_xp_map();
+    std::cout << "after init_xp_map" << std::endl;
 
     while(true)
     {
