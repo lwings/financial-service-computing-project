@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <vector>
-#include "../public/message.h"
+#include "../public/Message.h"
 using namespace std;
 const int MAX_LINE = 2048;
 const int PORT_1 = 20003;
@@ -26,12 +26,12 @@ const int MAX_CONNECT = 20;
 void *recv_message(void *fd)
 {
     int sockfd = *(int *)fd;
-     cmsgType cmsgtest1;
+     mktDataType cmsgtest1;
     while(1)
     {
 
         int n;
-        if((n = recv(sockfd , &cmsgtest1 ,sizeof( cmsgType) , 0)) == -1)
+        if((n = recv(sockfd , &cmsgtest1 ,sizeof( mktDataType) , 0)) == -1)
         {
             perror("recv error.\n");
             exit(1);
@@ -176,7 +176,7 @@ int main()
 
 
     /*处理服务器发送消息*/
-    smsgType smsgtest_1;
+    clMsgType smsgtest_1;
     while(fgets(smsgtest_1.stockName , MAX_LINE , stdin) != NULL)
     {
 
@@ -187,24 +187,24 @@ int main()
 //            printf("byebye.\n");
 //            memset(smsgtest_1.stockName , 0 , MAX_LINE);
 //            strcpy(smsgtest_1.stockName, "byebye.");
-//            send(connfd_1 , &smsgtest_1, sizeof(smsgType) , 0);
-//            send(connfd_2 ,&smsgtest_1, sizeof(smsgType) , 0);
+//            send(connfd_1 , &smsgtest_1, sizeof(clMsgType) , 0);
+//            send(connfd_2 ,&smsgtest_1, sizeof(clMsgType) , 0);
 //            close(connfd_1);
 //            close(connfd_2);
 //            exit(0);
 //        }//if
 
-        if(send(connfd_1 , &smsgtest_1,sizeof(smsgType) , 0) == -1)
+        if(send(connfd_1 , &smsgtest_1,sizeof(clMsgType) , 0) == -1)
         {
             perror("send error.\n");
             exit(1);
         }//if
-        if(send(connfd_2 , &smsgtest_1,sizeof(smsgType), 0) == -1)
+        if(send(connfd_2 , &smsgtest_1,sizeof(clMsgType), 0) == -1)
         {
             perror("send error.\n");
             exit(1);
         }//if
-        if(send(connfd_3 , &smsgtest_1,sizeof(smsgType), 0) == -1)
+        if(send(connfd_3 , &smsgtest_1,sizeof(clMsgType), 0) == -1)
         {
             perror("send error.\n");
             exit(1);

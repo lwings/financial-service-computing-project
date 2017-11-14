@@ -15,8 +15,8 @@
 #include <pthread.h>
 #include <time.h>
 #include <map>
-#include "../public/message.h"
-#include "../public/instrument.h"
+#include "../public/Message.h"
+#include "../public/Instrument.h"
 using namespace std;
 const int MAX_LINE = 2048;
 const int PORT =20003;
@@ -56,14 +56,14 @@ void *RandomStock(void *fd)
 /*处理接收服务器消息函数*/
 void *recv_message(void *fd)
 {
-    cmsgType cmsg;
+    mktDataType cmsg;
     int sockfd = *(int *)fd;
     while(1)
     {
 
-        smsgType smsrecv;
+        clMsgType smsrecv;
         int n;
-        if((n = recv(sockfd , &smsrecv ,sizeof(smsgType) , 0)) == -1)
+        if((n = recv(sockfd , &smsrecv ,sizeof(clMsgType) , 0)) == -1)
         {
             perror("recv error.\n");
             exit(1);
@@ -87,7 +87,7 @@ void *recv_message(void *fd)
             cmsg.operation=1;
         }
         pthread_mutex_unlock (&stockMutex);
-        if((n = send(sockfd , &cmsg ,sizeof(cmsgType) , 0)) == -1)
+        if((n = send(sockfd , &cmsg ,sizeof(mktDataType) , 0)) == -1)
         {
             perror("recv error.\n");
             exit(1);
@@ -147,7 +147,7 @@ int main(int argc , char **argv)
         perror("RandomStock_pthread create error.\n");
         exit(1);
     }
-    cmsgType csmgtest_1;
+    mktDataType csmgtest_1;
 
     while(fgets( csmgtest_1.stockName , MAX_LINE , stdin) != NULL)
     {
@@ -157,7 +157,7 @@ int main(int argc , char **argv)
             printf("byebye.\n");
             memset(csmgtest_1.stockName , 0 , MAX_LINE);
             strcpy(csmgtest_1.stockName, "byebye.");
-            send(sockfd , &csmgtest_1 , sizeof(cmsgType), 0);
+            send(sockfd , &csmgtest_1 , sizeof(mktDataType), 0);
             close(sockfd);
             exit(0);
         }//if
@@ -167,7 +167,7 @@ int main(int argc , char **argv)
         csmgtest_1.price=price;
         pthread_mutex_unlock (&stockMutex);
 
-        if(send(sockfd ,&csmgtest_1 , sizeof(cmsgType) , 0) == -1)
+        if(send(sockfd ,&csmgtest_1 , sizeof(mktDataType) , 0) == -1)
         {
             perror("send error.\n");
             exit(1);
