@@ -8,13 +8,15 @@ class Order
 public:
     char side;
     int qty;
+    int leavesQty;
     int priceInt;
     std::string ticker;
     std::string exch;
 
-    Order(char s, int q, int p, std::string &t, std::string &e){
+    Order(char s, int q,int lq, int p, std::string &t, std::string &e){
         side = s;
         qty = q;
+        leavesQty = lq;
         priceInt = p;
         ticker = t;
         exch = e;
@@ -23,6 +25,7 @@ public:
     Order(){
         side = '-';
         qty = 0;
+        leavesQty = 0;
         priceInt = 0;
         std::string t = "NONE";
         ticker = t;

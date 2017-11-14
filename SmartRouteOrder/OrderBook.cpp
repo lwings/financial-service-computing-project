@@ -5,8 +5,8 @@ OrderBook * get_orderbook_by_exch(std::string &ticker, std::string &exch)
     OrderBook *ob = new OrderBook(MAXLEVEL, MAXLEVEL, exch, ticker);
     for(int i = 0;i<MAXLEVEL;++i)
     {
-        ob->bid[MAXLEVEL-1-i]=Order('b', 100*(MAXLEVEL-i), 19950-10*i,ticker, exch);
-        ob->ask[i]=Order('s', 101*(1+i), 20100+10*i,ticker, exch);
+        ob->bid[MAXLEVEL-1-i]=Order('b', 100*(MAXLEVEL-i),0, 19950-10*i,ticker, exch);
+        ob->ask[i]=Order('s', 101*(MAXLEVEL-i), 0, 20100+10*i,ticker, exch);
     }
     return ob;
 }
