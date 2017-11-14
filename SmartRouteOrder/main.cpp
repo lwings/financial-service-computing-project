@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <vector>
+#include <map>
 #include "../public/Message.h"
 
 using namespace std;
@@ -25,7 +26,40 @@ const int PORT_3 = 20010;
 const int BACKLOG = 10;
 const int LISTENQ = 6666;
 const int MAX_CONNECT = 20;
+const int EXCHANGE_COUNT = 3;
+const int INSTRUMENT_COUNT = 4;
+const int MAX_PRICELEVEL = 20;
 
+typedef struct price_level {
+    int price;
+    int qty;
+} pxlv;
+typedef std::map<string, pxlv*> plm;
+typedef std::map<string, plm> xpm;
+
+std::string AllExch[EXCHANGE_COUNT] = {
+        "NYSE",
+        "NASDAQ",
+        "IEX"
+};
+std::string AllTickers[INSTRUMENT_COUNT] = {
+        "IBM.US",
+        "MS.US",
+        "PTR.US",
+        "BABA.US"
+};
+
+xpm xp_map;
+
+void init_xp_map()
+{
+    for (int i = 0; i < EXCHANGE_COUNT; ++i) {
+        xp_map[AllExch[i]] = new plm();
+        for (int j = 0; j < INSTRUMENT_COUNT; ++j) {
+            xp_map[AllExch[i]][AllTickers[j]] = new pxlv(MAX_PRICELEVEL);
+        }
+    }
+}
 
 /*处理接收客户端消息函数*/
 void *recv_message(void *fd)
@@ -42,6 +76,10 @@ void *recv_message(void *fd)
         }//if
         printf(" %s@%s \n BestBid: %d => %d \n BestOffer: %d => %d\n", cmsgtest1.stockName, cmsgtest1.clientName,
                cmsgtest1.price[9], cmsgtest1.num[9], cmsgtest1.price[10], cmsgtest1.num[10]);
+        for (int i = 0; i < MAX_PRICELEVEL; ++i) {
+            xp_map[cmsgtest1.clientName][cmsgtest1.stockName][i].price = cmsgtest1.price[i];
+            xp_map[cmsgtest1.clientName][cmsgtest1.stockName][i].num = cmsgtest1.num[i];
+        }
     }//while
 }
 
@@ -186,17 +224,7 @@ int main() {
     }//if
 
     std::string command;
-    std::string AllExch[3];
-    AllExch[0] = "NYSE";
-    AllExch[1] = "NASDAQ";
-    AllExch[2] = "IEX";
-
-    std::string AllTickers[4] = {
-            "IBM.US",
-            "MS.US",
-            "PTR.US",
-            "BABA.US"
-    };
+    init_xp_map();
 
     while(true)
     {
@@ -204,7 +232,7 @@ int main() {
         clMsgType smsgtest_1;
         smsgtest_1.operation = 0;
         smsgtest_1.num = 0;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < INSTRUMENT_COUNT; ++i) {
             strcpy(smsgtest_1.stockName, AllTickers[i].c_str());
             // TODO: send msg to 3 different EXCH
             if(send(connfd_1, &smsgtest_1, sizeof(clMsgType), 0) == -1)
