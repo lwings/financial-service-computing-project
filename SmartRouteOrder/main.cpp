@@ -17,6 +17,7 @@
 #include <vector>
 #include <map>
 #include "../public/Message.h"
+#include "../public/Instrument.h"
 
 using namespace std;
 const int MAX_LINE = 2048;
@@ -30,12 +31,8 @@ const int EXCHANGE_COUNT = 3;
 const int INSTRUMENT_COUNT = 4;
 const int MAX_PRICELEVEL = 20;
 
-typedef struct price_level {
-    int price;
-    int qty;
-} pxlv;
-typedef std::map<string, pxlv*> plm;
-typedef std::map<string, plm*> xpm;
+typedef std::map<std::string, pxlv*> plm;
+typedef std::map<std::string, plm*> xpm;
 
 std::string AllExch[EXCHANGE_COUNT];
 std::string AllTickers[INSTRUMENT_COUNT];
@@ -76,13 +73,14 @@ void *recv_message(void *fd)
             perror("recv error.\n");
             exit(1);
         }//if
-        printf(" %s@%s \n BestBid: %d => %d \n BestOffer: %d => %d\n", cmsgtest1.stockName, cmsgtest1.clientName,
-               cmsgtest1.price[9], cmsgtest1.num[9], cmsgtest1.price[10], cmsgtest1.num[10]);
+
         for (int i = 0; i < MAX_PRICELEVEL; ++i) {
             std::string exch = cmsgtest1.clientName;
             std::string ticker = cmsgtest1.stockName;
+//            std::cout << exch << "@" << ticker << ": " << cmsgtest1.price[i] << " -> " << cmsgtest1.num[i] << std::endl;
             (*(*xp_map)[exch])[ticker][i].price = cmsgtest1.price[i];
             (*(*xp_map)[exch])[ticker][i].qty = cmsgtest1.num[i];
+//            std::cout << "[" << exch << "@" << ticker << "]: " << (*(*xp_map)[exch])[ticker][i].price << " -> " << (*(*xp_map)[exch])[ticker][i].qty << std::endl;
         }
     }//while
 }
@@ -151,7 +149,7 @@ Order* find_orders(OrderBook const& ob, Order const& order, int& level)
         {
             if(cumQty>=size || px>ob.bid[bid_size-1-i].priceInt)
                 break;
-            if(cumQty + ob.bid[i].qty>size)
+            if(cumQty + ob.bid[bid_size-1-i].qty>size)
             {
                 ret[i] = Order('s', size-cumQty, 0,ob.bid[bid_size-1-i].priceInt, ob.bid[bid_size-1-i].ticker,ob.bid[bid_size-1-i].exch);
                 cumQty = size;
@@ -233,9 +231,9 @@ int main() {
     }//if
 
     std::string command;
-    std::cout << "before init_xp_map" << std::endl;
+//    std::cout << "before init_xp_map" << std::endl;
     init_xp_map();
-    std::cout << "after init_xp_map" << std::endl;
+//    std::cout << "after init_xp_map" << std::endl;
 
     while(true)
     {
@@ -253,27 +251,47 @@ int main() {
             }
         }
 
-        char side;
+        std::string side;
         int qty;
         double price;
         std::string ticker;
         std::cout << " >> ";
         std::cin >> side;
-        std::cin >> ticker;
-        std::cin >> qty;
-        std::cin >> price;
-        std::string exch = "NONE";
-        Order* o = new Order(side, qty, 0, int(1000*price), ticker, exch);
-        OrderBook* nyse = get_orderbook_by_exch(ticker, AllExch[0]);
-        OrderBook* nq = get_orderbook_by_exch(ticker, AllExch[1]);
-        OrderBook* iex = get_orderbook_by_exch(ticker, AllExch[2]);
-        OrderBook* orderbook = intergrate_orderbooks(*nyse, *nq, *iex);
-
-        nq->showall();
-
-        int level;
-        Order* result = find_orders(*orderbook, *o, level);
-        ShowSmartOrder(result, level);
+        if(side=="BBO")
+        {
+            std::cin >> ticker;
+            for (int i = 0; i < EXCHANGE_COUNT; ++i) {
+                std::string exch = AllExch[i];
+                printf("\n %s@%s \n BestBid: %d => %d \n BestOffer: %d => %d\n", ticker.c_str(), exch.c_str(),
+                       (*(*xp_map)[exch])[ticker][9].price, (*(*xp_map)[exch])[ticker][9].qty,
+                       (*(*xp_map)[exch])[ticker][10].price, (*(*xp_map)[exch])[ticker][10].qty);
+            }
+        }
+        else if(side=="OrderBook")
+        {
+            std::cin >> ticker;
+            OrderBook* nyse = get_orderbook_by_exch(ticker, AllExch[0], xp_map);
+            OrderBook* nq = get_orderbook_by_exch(ticker, AllExch[1], xp_map);
+            OrderBook* iex = get_orderbook_by_exch(ticker, AllExch[2], xp_map);
+            nyse->showall();
+            nq->showall();
+            iex->showall();
+        }
+        else
+        {
+            std::cin >> ticker;
+            std::cin >> qty;
+            std::cin >> price;
+            std::string exch = "NONE";
+            Order* o = new Order(side[0], qty, 0, int(1000*price), ticker, exch);
+            OrderBook* nyse = get_orderbook_by_exch(ticker, AllExch[0], xp_map);
+            OrderBook* nq = get_orderbook_by_exch(ticker, AllExch[1], xp_map);
+            OrderBook* iex = get_orderbook_by_exch(ticker, AllExch[2], xp_map);
+            OrderBook* orderbook = intergrate_orderbooks(*nyse, *nq, *iex);
+            int level;
+            Order* result = find_orders(*orderbook, *o, level);
+            ShowSmartOrder(result, level);
+        }
 
     }
 }

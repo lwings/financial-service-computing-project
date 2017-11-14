@@ -1,8 +1,15 @@
 #include "Order.h"
 #include <string.h>
 #include <stdio.h>
+#include <map>
+#include "../public/Instrument.h"
+
 #ifndef SMARTROUTEORDER_ORDERBOOK_H
 #define SMARTROUTEORDER_ORDERBOOK_H
+
+typedef price_level pxlv;
+typedef std::map<std::string, pxlv*> plm;
+typedef std::map<std::string, plm*> xpm;
 
 class OrderBook
 {
@@ -37,6 +44,7 @@ public:
 
     void showall()
     {
+        printf("\n");
         printf("%-6s%-10s%-10s%-10s%-10s|  %-6s%-10s%-10s%-10s%-10s\n","SIDE","TICKER","QUANTITY","PRICE","EXCHANGE","SIDE","TICKER","QUANTITY","PRICE","EXCHANGE");
         for(int i = asklevel()-1;i>=0;--i)
         {
@@ -51,7 +59,7 @@ public:
     }
 };
 
-OrderBook* get_orderbook_by_exch(std::string &ticker, std::string &exch);
+OrderBook* get_orderbook_by_exch(std::string &ticker, std::string &exch, xpm* xp_map);
 OrderBook* intergrate_orderbooks(OrderBook &ob1, OrderBook &ob2, OrderBook &ob3);
 
 #endif //SMARTROUTEORDER_ORDERBOOK_H

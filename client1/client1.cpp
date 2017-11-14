@@ -69,16 +69,55 @@ void *recv_message(void *fd)
             perror("recv error.\n");
             exit(1);
         }//if
+
+        //// ---
         pthread_mutex_lock(&stockMutex);
 
         strcpy(cmsg.clientName,"NYSE");
         strcpy(cmsg.stockName,smsrecv.stockName);
         cmsg.operation = smsrecv.operation;
-        cmsg.price[0] = stock_map[cmsg.stockName].price;
-        cmsg.num[0] = stock_map[cmsg.stockName].num;
-        for (int i = 1; i < 20; ++i) {
-            cmsg.price[i] = cmsg.price[i-1] + (rand()%20)*10;
-            cmsg.num[i] = cmsg.num[i-1] + (rand()%6-3)*100;
+        for (int i = 0; i < 20; ++i) {
+            int tmp = (i == 0) ? stock_map[cmsg.stockName].price : cmsg.price[i-1];
+            cmsg.price[i] = tmp + (rand()%20)*10;
+            cmsg.num[i] = (20-abs(19-2*i)+rand()%3)*100;
+        }
+
+        pthread_mutex_unlock (&stockMutex);
+        if((n = send(sockfd , &cmsg ,sizeof(mktDataType) , 0)) == -1)
+        {
+            perror("recv error.\n");
+            exit(1);
+        }//if
+
+        //// ---
+        pthread_mutex_lock(&stockMutex);
+
+        strcpy(cmsg.clientName,"NASDAQ");
+        strcpy(cmsg.stockName,smsrecv.stockName);
+        cmsg.operation = smsrecv.operation;
+        for (int i = 0; i < 20; ++i) {
+            int tmp = (i == 0) ? stock_map[cmsg.stockName].price : cmsg.price[i-1];
+            cmsg.price[i] = tmp + (rand()%20)*10;
+            cmsg.num[i] = (20-abs(19-2*i)+rand()%3)*100;
+        }
+
+        pthread_mutex_unlock (&stockMutex);
+        if((n = send(sockfd , &cmsg ,sizeof(mktDataType) , 0)) == -1)
+        {
+            perror("recv error.\n");
+            exit(1);
+        }//if
+
+        //// ---
+        pthread_mutex_lock(&stockMutex);
+
+        strcpy(cmsg.clientName,"IEX");
+        strcpy(cmsg.stockName,smsrecv.stockName);
+        cmsg.operation = smsrecv.operation;
+        for (int i = 0; i < 20; ++i) {
+            int tmp = (i == 0) ? stock_map[cmsg.stockName].price : cmsg.price[i-1];
+            cmsg.price[i] = tmp + (rand()%20)*10;
+            cmsg.num[i] = (20-abs(19-2*i)+rand()%3)*100;
         }
 
         pthread_mutex_unlock (&stockMutex);

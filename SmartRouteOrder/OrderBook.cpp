@@ -1,12 +1,19 @@
 #include "OrderBook.h"
-OrderBook * get_orderbook_by_exch(std::string &ticker, std::string &exch)
+OrderBook * get_orderbook_by_exch(std::string &ticker, std::string &exch, xpm* xp_map)
 {
     int MAXLEVEL = 10;
     OrderBook *ob = new OrderBook(MAXLEVEL, MAXLEVEL, exch, ticker);
+//    for (int i = 0; i < 20; ++i) {
+//        std::cout << "   >>>" << exch << "@" << ticker << ": " << (*(*xp_map)[exch])[ticker][i].price << " -> " << (*(*xp_map)[exch])[ticker][i].qty << std::endl;
+//    }
+
     for(int i = 0;i<MAXLEVEL;++i)
     {
-        ob->bid[MAXLEVEL-1-i]=Order('b', 100*(MAXLEVEL-i),0, 19950-10*i,ticker, exch);
-        ob->ask[i]=Order('s', 101*(MAXLEVEL-i), 0, 20100+10*i,ticker, exch);
+        ob->bid[i]=Order('b', (*(*xp_map)[exch])[ticker][i].qty, 0, (*(*xp_map)[exch])[ticker][i].price, ticker, exch);
+    }
+    for(int i = MAXLEVEL;i<2*MAXLEVEL;++i)
+    {
+        ob->ask[i-MAXLEVEL]=Order('s', (*(*xp_map)[exch])[ticker][i].qty, 0, (*(*xp_map)[exch])[ticker][i].price, ticker, exch);
     }
     return ob;
 }
