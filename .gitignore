@@ -1,5 +1,11 @@
+*
+!*.*
+!*/
+
 .idea/
 CMakeFiles/
 CMakeCache.txt
 cmake-build-debug/
 
+*.o
+*.c~
