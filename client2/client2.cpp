@@ -34,7 +34,7 @@ typedef struct clientMessage{
     int num;
 } cmsgType;
 
-typedef struct severMessage{
+typedef struct serverMessage{
     int operation;
     char stockName[1024] ;
     int  num;
