@@ -12,8 +12,8 @@
 #include <pthread.h>
 #include <time.h>
 #include <map>
-#include "../struct/message.h"
-#include "../struct/stock.h"
+#include "../public/message.h"
+#include "../public/instrument.h"
 using namespace std;
 const int MAX_LINE = 2048;
 const int PORT =20003;

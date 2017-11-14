@@ -6,6 +6,7 @@
 CMakeFiles/
 CMakeCache.txt
 cmake-build-debug/
-
+*.cbp
+*.cmake
 *.o
 *.c~
