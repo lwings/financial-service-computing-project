@@ -1,8 +1,14 @@
+//
+// Created by ChiuPhonic on 2017/12/26.
+//
+
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
-#define MYPORT  7000
+#define PORT 7000
+#define IP "127.0.0.1"
 #define BUFFER_SIZE 1024
+
 int main(int argc,char *argv[])
 {
     int sock_cli;
@@ -16,14 +22,8 @@ int main(int argc,char *argv[])
     struct sockaddr_in servaddr;
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    char s[1024];
-    int a;
-    std::cout << "输入想要建立连接的端口号以及IP地址:" << std::endl;
-    scanf("%d",&a);
-    getchar();
-    scanf("%s",s);
-    servaddr.sin_port = htons(a);  ///服务器端口，利用htons将主机字节顺序转换为网路字节数序从而进行数据包的传送
-    servaddr.sin_addr.s_addr = inet_addr(s);  ///服务器ip
+    servaddr.sin_port = htons(PORT);  ///服务器端口，利用htons将主机字节顺序转换为网路字节数序从而进行数据包的传送
+    servaddr.sin_addr.s_addr = inet_addr(IP);  ///服务器ip
     
     //连接服务器，成功返回0，错误返回-1
     if (connect(sock_cli, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
@@ -49,10 +49,10 @@ int main(int argc,char *argv[])
         /*等待聊天*/
         retval = select(maxfd+1, &rfds, NULL, NULL, &tv);//int select(int maxfdp,fd_set *readfds,fd_set *writefds,fd_set *errorfds,struct timeval*timeout);  监视我们需要的文件的文件描述符的变化情况——读写或是异常
         if(retval == -1){
-            printf("select出错，客户端程序退出\n");
+            printf("\n[FATAL] select error, exiting...\n");
             break;
         }else if(retval == 0){//超时
-            printf("客户端没有任何输入信息，并且服务器也没有信息到来，waiting...\n");
+            printf("\n[TIMEOUT] no market-data received, waiting...\n");
             continue;
         }else{//文件可进行读写或者出错
             /*服务器发来了消息*/
@@ -62,7 +62,7 @@ int main(int argc,char *argv[])
                 len = recv(sock_cli, recvbuf, sizeof(recvbuf),0);
                 printf("%s", recvbuf);
                 memset(recvbuf, 0, sizeof(recvbuf));
-            }
+            }//if
             /*用户输入信息了,开始处理信息并发送*/
             if(FD_ISSET(0, &rfds)){
                 char sendbuf[1024];
@@ -70,9 +70,9 @@ int main(int argc,char *argv[])
                 fgets(sendbuf, sizeof(sendbuf), stdin);
                 send(sock_cli, sendbuf, strlen(sendbuf),0); //发送
                 memset(sendbuf, 0, sizeof(sendbuf));
-            }
-        }
-    }
+            }//if
+        }//if
+    }//while
     
     close(sock_cli);
     return 0;

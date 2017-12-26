@@ -11,8 +11,8 @@ typedef struct price_level {
 } pxlv;
 
 typedef struct stock{
-    int     num;
-    int     price;
+    int num;
+    int price;
 } stockType;
 
 #endif //FSC_INSTRUMENT_H

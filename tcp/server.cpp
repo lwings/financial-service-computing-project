@@ -1,8 +1,13 @@
-#include <arpa/inet.h>//包含socket函数使用的各种协议族，send(),recv()
-#include <unistd.h>//调用linux系统函数的头文件(read(),write(),send()，select())
+//
+// Created by ChiuPhonic on 2017/12/26.
+//
+
+#include <arpa/inet.h>//包含socket函数使用的各种协议，send(), recv()
+#include <unistd.h>//调用linux系统函数的头文件(read(), write(), send(), select())
 #include <iostream>
 #include <thread>
 #include <list>
+#include "../public/Message.h"
 #define PORT 7000
 #define IP "127.0.0.1"
 
@@ -67,7 +72,7 @@ int main() {
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(PORT);
     servaddr.sin_addr.s_addr = inet_addr(IP);
-    if(bind(s, (struct sockaddr* ) &servaddr, sizeof(servaddr))==-1) {
+    if(bind(s, (struct sockaddr* ) &servaddr, sizeof(servaddr)) == -1) {
         perror("bind");
         exit(1);
     }
@@ -75,6 +80,7 @@ int main() {
         perror("listen");
         exit(1);
     }
+
     len = sizeof(servaddr);
     std::thread t(getConn);
     t.detach();
@@ -82,8 +88,8 @@ int main() {
     t1.detach();
     std::thread t2(getData);
     t2.detach();
+
     while(1){
         
     }
-    return 0;
 }
