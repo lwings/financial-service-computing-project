@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
+#include "../public/Message.h"
 #define PORT 7000
 #define IP "127.0.0.1"
 #define BUFFER_SIZE 1024
@@ -44,7 +45,7 @@ int main(int argc,char *argv[])
         if(maxfd < sock_cli)
             maxfd = sock_cli;
         /*设置超时时间*/
-        tv.tv_sec = 5;
+        tv.tv_sec = 60;
         tv.tv_usec = 0;
         /*等待聊天*/
         retval = select(maxfd+1, &rfds, NULL, NULL, &tv);//int select(int maxfdp,fd_set *readfds,fd_set *writefds,fd_set *errorfds,struct timeval*timeout);  监视我们需要的文件的文件描述符的变化情况——读写或是异常
@@ -60,7 +61,15 @@ int main(int argc,char *argv[])
                 char recvbuf[BUFFER_SIZE];
                 long len;
                 len = recv(sock_cli, recvbuf, sizeof(recvbuf),0);
-                printf("%s", recvbuf);
+                printf("[CLIENT] mktdata rev\n");
+                printf("%s=>", recvbuf);
+                printf("%zu\n", strlen(recvbuf));
+                auto md0 = mktDataType::parse(recvbuf);
+                printf("ticker: %s\t", md0.ticker);
+                printf("exchange: %s\n", md0.exchange);
+                printf("%d @ %d\n", md0.bid_px[1], md0.bid_sz[1]);
+                printf("%d @ %d\n", md0.ask_px[1], md0.ask_sz[1]);
+
                 memset(recvbuf, 0, sizeof(recvbuf));
             }//if
             /*用户输入信息了,开始处理信息并发送*/
@@ -68,6 +77,12 @@ int main(int argc,char *argv[])
                 char sendbuf[1024];
 //                scanf("%s",sendbuf);
                 fgets(sendbuf, sizeof(sendbuf), stdin);
+                auto s0 = subMsgType();
+                s0.operation = '1';
+                sprintf(s0.ticker, "IBM.US");
+                auto buf = s0.str();
+                strncpy(sendbuf, buf, 10);
+                printf("[CLIENT] %s=>%zu", sendbuf, strlen(sendbuf));
                 send(sock_cli, sendbuf, strlen(sendbuf),0); //发送
                 memset(sendbuf, 0, sizeof(sendbuf));
             }//if

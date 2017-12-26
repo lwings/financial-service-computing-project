@@ -24,6 +24,38 @@ void getConn() {
     }
 }
 
+void send_mkt_data() {
+    printf("[SERVER] into new thread!! \n");
+    while(1) {
+        auto md = mktDataType();
+        // TODO: generate md
+        strncpy(md.ticker, "IBM.US", 6);
+        strncpy(md.exchange, "NYSE", 4);
+        md.bid_px[0] = 1;
+        md.bid_sz[0] = 1;
+        md.ask_px[0] = 1;
+        md.ask_sz[0] = 1;
+        md.bid_px[1] = 100500;
+        md.bid_sz[1] = 300;
+        md.ask_px[1] = 100600;
+        md.ask_sz[1] = 500;
+        auto p = md.str();
+        char buf[1024];
+        for (int x=0; x<strlen(p); ++x) {
+            buf[x] = p[x];
+        }
+        buf[strlen(p)] = 0;
+        std::list<int>::iterator it;
+        for(it=li.begin(); it!=li.end(); ++it){
+            send(*it, buf, sizeof(buf), 0);
+        }
+        printf("%s=>", buf);
+        printf("%zu\n", strlen(buf));
+        printf("[SERVER] send mkt!! \n");
+        sleep(1);
+    }
+}
+
 void getData() {
     struct timeval tv;
     tv.tv_sec = 2;
@@ -43,11 +75,32 @@ void getData() {
             if(retval == -1){
                 printf("select error\n");
             }else if(retval == 0) {
+                //
             }else{
                 char buf[1024];
                 memset(buf, 0 ,sizeof(buf));
                 long len = recv(*it, buf, sizeof(buf), 0);
-                printf("%s", buf);
+                printf("%s\n", buf);
+                printf("%zu\n", strlen(buf));
+                char msg_type = buf[0];
+                switch (msg_type) {
+                    case 'S':
+                        printf("[SERVER] subscribe rev\n");
+                        char msg[10];
+                        snprintf(msg, 10+1, "%s", buf);
+                        printf("[SERVER] %s=>%zu", msg, strlen(msg));
+                        auto s0 = subMsgType::parse(msg);
+                        printf("[%c]\n", s0.operation);
+                        if (s0.operation == '1') {
+                            std::thread t_sub(send_mkt_data);
+                            t_sub.detach();
+                        }
+                        break;
+//                    case 'O':
+//                        break;
+//                    default:
+//                        break;
+                }
             }
         }
         sleep(1);
@@ -55,16 +108,16 @@ void getData() {
     }
 }
 
-void sendMess() {
-    while(1) {
-        char buf[1024];
-        fgets(buf, sizeof(buf), stdin);//从文件流读取一行，送到缓冲区，使用时注意以下几点
-        std::list<int>::iterator it;
-        for(it=li.begin(); it!=li.end(); ++it){
-            send(*it, buf, sizeof(buf), 0);
-        }
-    }
-}
+//void sendMess() {
+//    while(1) {
+//        char buf[1024];
+//        fgets(buf, sizeof(buf), stdin);//从文件流读取一行，送到缓冲区，使用时注意以下几点
+//        std::list<int>::iterator it;
+//        for(it=li.begin(); it!=li.end(); ++it){
+//            send(*it, buf, sizeof(buf), 0);
+//        }
+//    }
+//}
 
 int main() {
     s = socket(AF_INET, SOCK_STREAM, 0);
@@ -84,8 +137,8 @@ int main() {
     len = sizeof(servaddr);
     std::thread t(getConn);
     t.detach();
-    std::thread t1(sendMess);
-    t1.detach();
+//    std::thread t1(sendMess);
+//    t1.detach();
     std::thread t2(getData);
     t2.detach();
 

@@ -35,7 +35,6 @@ public:
     }
 } subMsgType;
 
-
 typedef struct MarketData {//#'M'
     char    ticker[8];
     char    exchange[8];
@@ -57,7 +56,7 @@ public:
         //sprintf(head, "M%-8s%-8s", ticker, exchange);
         snprintf(head, 17+1, "M%-8s%-8s", ticker, exchange);
         strncpy(buf, head, 17);
-        buf[17] = '0';
+        //buf[17] = '0';
 
         auto *bids = new char[1 + 16 * bn];
         bids[0] = char('0' + bn);
@@ -70,7 +69,7 @@ public:
 
         }
         strncpy(buf+17, bids, size_t(1+16*bn));
-        buf[18+16*bn] = '0';
+        //buf[18+16*bn] = '0';
         delete [] bids;
 
         auto *asks = new char[1 + 16 * an];
@@ -84,7 +83,7 @@ public:
 
         }
         strncpy(buf+18+16*bn, asks, size_t(1+16*an));
-        buf[19+16*(bn+an)] = 0;
+        //buf[19+16*(bn+an)] = 0;
         delete [] asks;
 
         return buf;
@@ -152,7 +151,6 @@ public:
     }
 } mktDataType;
 
-
 typedef struct OrderMsg {//#'O'
     char    side;
     char    type;
@@ -214,7 +212,6 @@ public:
         return res;
     }
 } ordMsgType;
-
 
 typedef struct ReportMsg {//#'R'
     char    side;
