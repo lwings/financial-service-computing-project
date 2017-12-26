@@ -21,9 +21,8 @@
 
 using namespace std;
 const int MAX_LINE = 2048;
-const int PORT_1 = 20003;
-const int PORT_2 = 20004;
-const int PORT_3 = 20010;
+const int PORT = 20003;
+const int PORT_X = 20005;
 const int BACKLOG = 10;
 const int LISTENQ = 6666;
 const int MAX_CONNECT = 20;
@@ -205,7 +204,7 @@ int main() {
     bzero(&servaddr_1, sizeof(servaddr_1));
     servaddr_1.sin_family = AF_INET;
     servaddr_1.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr_1.sin_port = htons(PORT_1);
+    servaddr_1.sin_port = htons(PORT);
     /*(3) 绑定套接字和端口*/
     /*(4) 监听*/
     if (bind(listenfd_1, (struct sockaddr *) &servaddr_1, sizeof(servaddr_1)) < 0) {

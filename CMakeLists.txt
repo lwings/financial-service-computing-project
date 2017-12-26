@@ -7,6 +7,6 @@ set(SOURCE_FILES
         client1/client1.cpp
         public/Instrument.h
         public/Message.h
-        SmartRouteOrder/main.cpp SmartRouteOrder/Order.cpp SmartRouteOrder/OrderBook.cpp)
+        SmartRouteOrder/main.cpp SmartRouteOrder/Order.cpp SmartRouteOrder/OrderBook.cpp Exchange/exchange.cpp)
 
 add_executable(fsc ${SOURCE_FILES})
