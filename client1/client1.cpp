@@ -130,7 +130,7 @@ void *recv_message(void *fd)
 }
 
 
-int main(int argc , char **argv)
+int mainn(int argc , char **argv)
 {
     /*声明套接字和链接服务器地址*/
     pthread_attr_t threadAttr;
