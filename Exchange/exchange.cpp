@@ -1,6 +1,7 @@
 //
-// Created by ChiuPhonic on 2017/11/14.
+// Created by ChiuPhonic on 2017/12/26.
 //
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,14 +18,14 @@
 #include <map>
 #include "../public/Message.h"
 #include "../public/Instrument.h"
-using namespace std;
 const int MAX_LINE = 2048;
 const int PORT =20003;
+const int PORT_X = 20005;
 const int BACKLOG = 10;
 const int LISTENQ = 6666;
 const int MAX_CONNECT = 20;
 
-map<string ,stockType> stock_map;
+std::map<std::string ,stockType> stock_map;
 
 // 同步锁
 pthread_mutex_t stockMutex=PTHREAD_MUTEX_INITIALIZER;
@@ -37,11 +38,13 @@ void *RandomStock(void *fd)
     stock_map["PTR.US"].num=1200;
     stock_map["BABA.US"].num=3500;
 
-    stock_map["IBM.US"].price=148900;
-    stock_map["MS.US"].price=48370;
-    stock_map["PTR.US"].price=68920;
-    stock_map["BABA.US"].price=182570;
-    srand(time(NULL));
+    stock_map["IBM.US"].price=int(148.900 * 1000);
+    stock_map["MS.US"].price=int(48.370 * 1000);
+    stock_map["PTR.US"].price=int(68.920 * 1000);
+    stock_map["BABA.US"].price=int(182.570 * 1000);
+
+    srand((unsigned int)time(NULL));
+
     while(1)
     {
         pthread_mutex_lock(&stockMutex);
@@ -130,7 +133,7 @@ void *recv_message(void *fd)
 }
 
 
-int mainn(int argc , char **argv)
+int main(int argc , char **argv)
 {
     /*声明套接字和链接服务器地址*/
     pthread_attr_t threadAttr;
@@ -183,34 +186,5 @@ int mainn(int argc , char **argv)
     }
 
     sleep(360000);
-//    mktDataType csmgtest_1;
-//
-//    while(fgets( csmgtest_1.stockName , MAX_LINE , stdin) != NULL)
-//    {
-//        strcpy(csmgtest_1.clientName , "client1");
-//        if(strcmp(csmgtest_1.clientName, "exit\n") == 0)
-//        {
-//            printf("byebye.\n");
-//            memset(csmgtest_1.stockName , 0 , MAX_LINE);
-//            strcpy(csmgtest_1.stockName, "byebye.");
-//            send(sockfd , &csmgtest_1 , sizeof(mktDataType), 0);
-//            close(sockfd);
-//            exit(0);
-//        }//if
-//
-//        pthread_mutex_lock(&stockMutex);
-//        printf("\n the price is %d now \n",csmgtest_1.price);
-//        csmgtest_1.price=price;
-//        pthread_mutex_unlock (&stockMutex);
-//
-//        if(send(sockfd ,&csmgtest_1 , sizeof(mktDataType) , 0) == -1)
-//        {
-//            perror("send error.\n");
-//            exit(1);
-//        }//
-//
-//    }//while
-
 
 }
-
