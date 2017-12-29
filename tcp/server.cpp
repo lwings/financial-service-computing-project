@@ -5,9 +5,14 @@
 #include <arpa/inet.h>//包含socket函数使用的各种协议，send(), recv()
 #include <unistd.h>//调用linux系统函数的头文件(read(), write(), send(), select())
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 #include <thread>
+#include <vector>
 #include <list>
 #include "../public/Message.h"
+#include "../AdvOrderBook.h"
 #define PORT 7000
 #define IP "127.0.0.1"
 
@@ -16,8 +21,31 @@ struct sockaddr_in servaddr;
 socklen_t len;
 std::list<int> li;
 
+
+//std::vector<std::string> subscribed_list(4);
+
+//std::string nyse = "NYSE";
+//std::string nasd = "NASDAQ";
+//std::string iex = "IEX";
+//AdvExchange exch1;// = AdvExchange::AdvExchange(nyse);
+//AdvExchange exch2;// = AdvExchange::AdvExchange(nasd);
+//AdvExchange exch3;// = AdvExchange::AdvExchange(iex);
+//
+//void init_static()
+//{
+//    subscribed_list[0] = "IBM.US";
+//    subscribed_list[1] = "MS.US";
+//    subscribed_list[2] = "PTR.US";
+//    subscribed_list[3] = "MSFT.US";
+//
+//    exch1 = AdvExchange::AdvExchange(nyse);
+//    exch2 = AdvExchange::AdvExchange(nasd);
+//    exch3 = AdvExchange::AdvExchange(iex);
+//}
+
+
 void getConn() {
-    while(1){
+    while(1) {
         int conn = accept(s, (struct sockaddr*)&servaddr, &len);//第二个参数保存客户端套接字对应的IP地址和port 端口信息
         li.push_back(conn);
         printf("%d\n", conn);
@@ -27,6 +55,19 @@ void getConn() {
 void send_mkt_data() {
     printf("[SERVER] into new thread!! \n");
     while(1) {
+
+//        for (std::vector<int>::iterator itr=subscribed_list.begin(); itr!=subscribed_list.end(); ++itr) {
+//            auto ticker = *itr;
+//            auto md = mktDataType();
+//            strncpy(md.ticker, ticker, strlen(ticker.c_str()));
+//            strncpy(md.exchange, "NYSE", 4);
+//
+//            for(auto iter = exch1.books.begin();iter!=exch1.books.end();iter++)
+//            {
+//                printf("Ticker: %s\n", iter->first.c_str());
+//                iter->second->showAll();
+//            }
+//        }
         auto md = mktDataType();
         // TODO: generate md
         strncpy(md.ticker, "IBM.US", 6);
@@ -46,7 +87,7 @@ void send_mkt_data() {
         }
         buf[strlen(p)] = 0;
         std::list<int>::iterator it;
-        for(it=li.begin(); it!=li.end(); ++it){
+        for (it=li.begin(); it!=li.end(); ++it) {
             send(*it, buf, sizeof(buf), 0);
         }
         printf("%s=>", buf);
@@ -92,6 +133,17 @@ void getData() {
                         auto s0 = subMsgType::parse(msg);
                         printf("[%c]\n", s0.operation);
                         if (s0.operation == '1') {
+//                            std::string ticker = s0.ticker;
+//                            bool flag = false;
+//                            for (std::vector<int>::iterator itr=subscribed_list.begin(); itr!=subscribed_list.end(); ++itr) {
+//                                if (*itr == ticker) {
+//                                    flag = true;
+//                                    break;
+//                                }
+//                            }
+//                            if (!flag) {
+//                                subscribed_list.push_back(ticker);
+//                            }
                             std::thread t_sub(send_mkt_data);
                             t_sub.detach();
                         }

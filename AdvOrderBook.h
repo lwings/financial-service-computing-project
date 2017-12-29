@@ -64,9 +64,9 @@ typedef std::shared_ptr<AdvOrderBook> AdvOrderBookPtr;
 
 class AdvExchange
 {
+public:
     std::map<std::string, AdvOrderBookPtr> books;
     std::string exchName;
-public:
     std::map<std::string, OrderInfoPtr> byOid;
     AdvExchange(std::string &exch)
     {
@@ -122,6 +122,9 @@ public:
             iter->second->showAll();
         }
     }
+
+
+
 };
 
 

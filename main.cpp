@@ -26,7 +26,5 @@ int main()
         exch->showAll();
     }
 
-
-
     return 0;
 }
